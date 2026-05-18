@@ -22,7 +22,7 @@ Hey there! This is a searchable database of CSUF faculty office hours, available
 2. **Load into the database** using `db_loader/office_loader`
 3. **Search** via the CLI (`cli/search`)
 
-Just want to access faculty office hours without any fuss? Visit [my webpage!](https://jamil5150.github.io/titan-office-hours/).<br>
+Just want to access faculty office hours without any fuss? Visit [my webpage](https://jamil5150.github.io/titan-office-hours/).<br>
 Want to add office hours for someone? Fill out the submission form located [here](https://docs.google.com/forms/d/e/1FAIpQLSeJCflSEG24At4COMb1PJ6WOMLlqGLS2HTF7gksi4HaL8wOww/viewform?usp=dialog) or on my site! 
 
 ## CSV Format
