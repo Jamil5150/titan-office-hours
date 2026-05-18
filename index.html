@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Office Hours</title>
+    <style>
+        :root {
+            --csuf-navy: #002554;
+            --csuf-orange: #FF8200;
+            --white: #ffffff;
+            --light-bg: #f4f6f9;
+            --border: #dee2e6;
+            --text: #333;
+            --text-light: #555;
+            --shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        header {
+            background: var(--csuf-navy);
+            color: white;
+            padding: 0.8rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            letter-spacing: 0.3px;
+            margin: 0;
+        }
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.2rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0.8rem 1rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Filter bar */
+        .filter-toggle {
+            display: none;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            font-size: 0.95rem;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--csuf-navy);
+        }
+        .filter-toggle::after {
+            content: " ▾";
+            float: right;
+        }
+        .filter-toggle.active::after {
+            content: " ▴";
+        }
+
+        .filter-bar {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 0.8rem;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 120px;
+            flex: 1 1 150px;
+        }
+        .filter-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.15rem;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 0.5rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            background: var(--white);
+            width: 100%;
+            height: 44px;  /* touch-friendly */
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--csuf-orange);
+            box-shadow: 0 0 0 2px rgba(255,130,0,0.2);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.15rem;
+            height: 44px;
+        }
+        .search-btn {
+            background: var(--csuf-orange);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            height: 44px;
+            min-width: 100px;
+        }
+        .search-btn:hover { background: #e67600; }
+
+        /* Loading */
+        .spinner {
+            border: 3px solid rgba(0,0,0,0.1);
+            border-left-color: var(--csuf-orange);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 0.8s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { text-align: center; color: var(--text-light); }
+
+        /* Sticky headers */
+        .college-header {
+            position: sticky;
+            top: 0;
+            background: var(--light-bg);
+            padding: 0.5rem 0 0.2rem;
+            margin-bottom: 0.3rem;
+            z-index: 2;
+            border-bottom: 2px solid var(--csuf-orange);
+        }
+        .college-header h2 {
+            font-size: 1.2rem;
+            color: var(--csuf-navy);
+            margin: 0;
+        }
+        .dept-header {
+            position: sticky;
+            top: 2.6rem;
+            background: var(--light-bg);
+            padding: 0.2rem 0 0.1rem 0.5rem;
+            margin: 0.3rem 0 0.1rem;
+            z-index: 1;
+            border-left: 4px solid var(--csuf-orange);
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Faculty row */
+        .faculty-row {
+            display: flex;
+            align-items: baseline;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        .faculty-name {
+            font-weight: 700;
+            color: var(--csuf-navy);
+            min-width: 130px;
+            margin-right: 0.8rem;
+            white-space: nowrap;
+        }
+        .hours-text {
+            color: var(--text);
+            word-break: break-word;
+        }
+
+        footer {
+            background: var(--light-bg);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+        footer a {
+            color: var(--csuf-navy);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 700px) {
+            .filter-toggle {
+                display: block;
+            }
+            .filter-bar {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-bar.show {
+                display: flex;
+            }
+            .filter-group {
+                flex: 1 1 auto;
+                min-width: 100%;
+            }
+            .search-btn {
+                width: 100%;
+            }
+            .faculty-row {
+                flex-direction: column;
+            }
+            .faculty-name {
+                min-width: auto;
+                margin-bottom: 0.2rem;
+            }
+            .college-header {
+                top: 0;
+            }
+            .dept-header {
+                top: 2.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Titan Office Hours - Spring 26</h1>
+        <p>Find your professors' office hours in seconds!</p>
+    </header>
+
+    <div class="container">
+        <!-- Collapsible filter toggle (for mobile) -->
+        <button class="filter-toggle" id="filterToggle">Filters</button>
+
+        <div class="filter-bar" id="filterBar">
+            <div class="filter-group">
+                <label for="college">College</label>
+                <select id="college"><option value="">All Colleges</option></select>
+            </div>
+            <div class="filter-group">
+                <label for="department">Department</label>
+                <select id="department"><option value="">All Departments</option></select>
+            </div>
+            <div class="filter-group">
+                <label for="professor">Professor (last name)</label>
+                <input type="text" id="professor" placeholder="e.g., Smith">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="todayOnly">
+                <label for="todayOnly">Today only</label>
+            </div>
+            <button class="search-btn" onclick="search()">Search</button>
+        </div>
+
+        <div id="results">
+            <div id="loading" style="display:none;">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading database…</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Built for CSUF students • <a href="https://github.com/jamil5150/titan-office-hours" target="_blank">View on GitHub</a> • Made by Jamil
+    </footer>
+
+    <script src="sql-wasm.js"></script>
+    <script>
+        let db;
+        const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+        // Mobile filter toggle
+        document.getElementById('filterToggle').addEventListener('click', function() {
+            const bar = document.getElementById('filterBar');
+            bar.classList.toggle('show');
+            this.classList.toggle('active');
+        });
+
+        window.onload = async () => {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const response = await fetch('titan_office.db');
+                const arrayBuffer = await response.arrayBuffer();
+                const SQL = await initSqlJs();
+                db = new SQL.Database(new Uint8Array(arrayBuffer));
+                populateCollegeDropdown();
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                document.getElementById('results').innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+                document.getElementById('loading').style.display = 'none';
+            }
+        };
+
+        function populateCollegeDropdown() {
+            const collegeSelect = document.getElementById('college');
+            collegeSelect.innerHTML = '<option value="">All Colleges</option>';
+            const colleges = db.exec("SELECT name FROM colleges ORDER BY name");
+            if (colleges.length > 0 && colleges[0].values) {
+                colleges[0].values.forEach(([name]) => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    collegeSelect.appendChild(opt);
+                });
+            }
+            collegeSelect.addEventListener('change', updateDepartmentDropdown);
+            updateDepartmentDropdown();
+        }
+
+        function updateDepartmentDropdown() {
+            const deptSelect = document.getElementById('department');
+            const selectedCollege = document.getElementById('college').value;
+            deptSelect.innerHTML = '<option value="">All Departments</option>';
+            if (!db) return;
+
+            let query;
+            if (selectedCollege === '') {
+                query = "SELECT name FROM departments ORDER BY name";
+            } else {
+                query = "SELECT d.name FROM departments d JOIN colleges c ON d.college_id = c.id WHERE c.name = ? ORDER BY d.name";
+            }
+            try {
+                const stmt = db.prepare(query);
+                if (selectedCollege !== '') stmt.bind([selectedCollege]);
+                while (stmt.step()) {
+                    const row = stmt.getAsObject();
+                    const opt = document.createElement('option');
+                    opt.value = row.name;
+                    opt.textContent = row.name;
+                    deptSelect.appendChild(opt);
+                }
+                stmt.free();
+            } catch (err) {
+                console.error("Error updating department dropdown:", err);
+            }
+        }
+
+        function search() {
+            if (!db) {
+                document.getElementById('results').innerHTML = '<p style="color:red;">Database not loaded.</p>';
+                return;
+            }
+
+            const college = document.getElementById('college').value;
+            const department = document.getElementById('department').value;
+            const professor = document.getElementById('professor').value.trim();
+            const todayOnly = document.getElementById('todayOnly').checked;
+
+            let sql = `
+    SELECT c.name AS College, d.name AS Department, f.name AS Faculty,
+           GROUP_CONCAT(
+               oh.day || ': ' || oh.start_time || '-' || oh.end_time || ' (' || oh.room || ')',
+               ' • '
+           ) AS Schedule
+FROM office_hours oh
+JOIN faculty f ON oh.faculty_id = f.id
+JOIN departments d ON f.dept_id = d.id
+JOIN colleges c ON d.college_id = c.id
+WHERE 1=1
+`;
+            const params = [];
+
+            if (college) { sql += ' AND c.name = ?'; params.push(college); }
+            if (department) { sql += ' AND d.name = ?'; params.push(department); }
+            if (professor) { sql += ' AND f.name LIKE ?'; params.push(`%${professor}%`); }
+            if (todayOnly) { sql += ' AND oh.day = ?'; params.push(todayName); }
+
+            sql += ' GROUP BY c.name, d.name, f.id ORDER BY c.name, d.name, f.name;';
+
+            try {
+                const stmt = db.prepare(sql);
+                stmt.bind(params);
+                const rows = [];
+                while (stmt.step()) rows.push(stmt.getAsObject());
+                stmt.free();
+                displayResults(rows);
+                // On mobile, hide filter bar after search for less scrolling
+                if (window.innerWidth <= 700) {
+                    document.getElementById('filterBar').classList.remove('show');
+                    document.getElementById('filterToggle').classList.remove('active');
+                }
+            } catch (err) {
+                document.getElementById('results').innerHTML = `<p style="color:red;">Search error: ${err.message}</p>`;
+            }
+        }
+
+        function displayResults(rows) {
+    const resultsDiv = document.getElementById('results');
+    if (rows.length === 0) {
+        resultsDiv.innerHTML = '<p>No office hours found.</p>';
+        return;
+    }
+
+    let html = '';
+    let currentCollege = '';
+    let currentDept = '';
+
+    rows.forEach(row => {
+        if (row.College !== currentCollege) {
+            html += `<div class="college-header"><h2>${escapeHtml(row.College)}</h2></div>`;
+            currentCollege = row.College;
+            currentDept = '';
+        }
+        if (row.Department !== currentDept) {
+            html += `<div class="dept-header">${escapeHtml(row.Department)}</div>`;
+            currentDept = row.Department;
+        }
+        
+        // Format the schedule with proper time display
+        let formattedSchedule = row.Schedule;
+        if (formattedSchedule) {
+            // Replace time patterns: "start-end" → "start AM - end PM"
+            formattedSchedule = formattedSchedule.replace(
+                /(\d{1,2}:\d{2})(am|pm)-(\d{1,2}:\d{2})(am|pm)/gi,
+                (match, startTime, startAmpm, endTime, endAmpm) => {
+                    return `${startTime} ${startAmpm.toUpperCase()} - ${endTime} ${endAmpm.toUpperCase()}`;
+                }
+            );
+        }
+        
+        html += `<div class="faculty-row">
+            <span class="faculty-name">${escapeHtml(row.Faculty)}</span>
+            <span class="hours-text">${formattedSchedule}</span>
+        </div>`;
+    });
+
+    resultsDiv.innerHTML = html;
+}
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function formatTime(timeStr) {
+    if (!timeStr) return '';
+    
+    // Removes spaces and converts to lowercase
+    let cleaned = timeStr.replace(/\s/g, '').toLowerCase();
+    
+    // Split hours and minutes from "am/pm" suffix
+    let match = cleaned.match(/^(\d{1,2}):(\d{2})(am|pm)$/);
+    if (!match) return timeStr;  // return unchanged if format is unexpected
+    
+    let hours = parseInt(match[1]);
+    let minutes = match[2];
+    let ampm = match[3].toUpperCase();
+    
+    // Format with space before AM/PM
+    return `${hours}:${minutes} ${ampm}`;
+}
+
+function formatTimeRange(startTime, endTime) {
+    return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+}
+    </script>
+</body>
+</html>
