@@ -141,7 +141,6 @@
         }
         .search-btn:hover { background: #e67600; }
 
-        /* Loading */
         .spinner {
             border: 3px solid rgba(0,0,0,0.1);
             border-left-color: var(--csuf-orange);
@@ -154,7 +153,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { text-align: center; color: var(--text-light); }
 
-        /* Sticky headers */
         .college-header {
             position: sticky;
             top: 0;
@@ -181,8 +179,6 @@
             color: var(--text-light);
             font-size: 0.95rem;
         }
-
-        /* Faculty row */
         .faculty-row {
             display: flex;
             align-items: baseline;
@@ -290,6 +286,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Submission section -->
+<div style="text-align: center; margin: 2rem 0; padding: 1.5rem; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+    <h3 style="color: var(--csuf-navy); margin-bottom: 0.5rem;">Don't See Your Professor?</h3>
+    <p style="margin-bottom: 1rem; color: var(--text-light);">Submit missing office hours and I'll add them to the database.</p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJCflSEG24At4COMb1PJ6WOMLlqGLS2HTF7gksi4HaL8wOww/viewform?usp=dialog" target="_blank" 
+       style="display: inline-block; background: var(--csuf-navy); color: white; padding: 0.7rem 1.8rem; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 1rem; transition: background 0.2s;">
+       Submit Office Hours
+    </a>
+</div>
 
     <footer>
         Built for CSUF students • <a href="https://github.com/jamil5150/titan-office-hours" target="_blank">View on GitHub</a> • Made by Jamil
@@ -405,7 +411,6 @@ WHERE 1=1
                 while (stmt.step()) rows.push(stmt.getAsObject());
                 stmt.free();
                 displayResults(rows);
-                // On mobile, hide filter bar after search for less scrolling
                 if (window.innerWidth <= 700) {
                     document.getElementById('filterBar').classList.remove('show');
                     document.getElementById('filterToggle').classList.remove('active');
@@ -437,10 +442,8 @@ WHERE 1=1
             currentDept = row.Department;
         }
         
-        // Format the schedule with proper time display
         let formattedSchedule = row.Schedule;
         if (formattedSchedule) {
-            // Replace time patterns: "start-end" → "start AM - end PM"
             formattedSchedule = formattedSchedule.replace(
                 /(\d{1,2}:\d{2})(am|pm)-(\d{1,2}:\d{2})(am|pm)/gi,
                 (match, startTime, startAmpm, endTime, endAmpm) => {
@@ -466,18 +469,14 @@ WHERE 1=1
         function formatTime(timeStr) {
     if (!timeStr) return '';
     
-    // Removes spaces and converts to lowercase
     let cleaned = timeStr.replace(/\s/g, '').toLowerCase();
     
-    // Split hours and minutes from "am/pm" suffix
     let match = cleaned.match(/^(\d{1,2}):(\d{2})(am|pm)$/);
-    if (!match) return timeStr;  // return unchanged if format is unexpected
+    if (!match) return timeStr;
     
     let hours = parseInt(match[1]);
     let minutes = match[2];
     let ampm = match[3].toUpperCase();
-    
-    // Format with space before AM/PM
     return `${hours}:${minutes} ${ampm}`;
 }
 
